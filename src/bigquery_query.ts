@@ -223,7 +223,7 @@ export default class BigQueryQuery {
     if (timeGroup) {
       query = this._buildTimeColumntimeGroup(alias, timeGroup);
     } else {
-      query = BigQueryQuery.quoteFiledName(this.target.timeColumn);
+      query = this.target.timeColumn;
       if (alias) {
         query += " AS time";
       }
