@@ -573,7 +573,7 @@ export default class BigQueryQuery {
       this.target.dataset +
       "." +
       this.target.table +
-      "`";
+      "`, UNNEST(event_params) as param";
 
     query += this.buildWhereClause();
     query += this.buildGroupClause();
