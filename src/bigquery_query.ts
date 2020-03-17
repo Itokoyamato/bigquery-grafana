@@ -179,7 +179,7 @@ export default class BigQueryQuery {
       console.log(client);
       this.target.project = client.project;
       this.target.dataset = client.dataset;
-      rawSql += this.buildQuery();
+      rawSql += this.buildQuery(true);
       if (index < clients.length - 1) rawSql += ' UNION ALL ';
     });
     rawSql += "ORDER BY 1, 2) GROUP BY time, metric";
@@ -561,7 +561,7 @@ export default class BigQueryQuery {
     return query;
   }
 
-  public buildQuery() {
+  public buildQuery(union?) {
     let query = "";
     let outerQuery = "";
     query += "\n" + "SELECT";
@@ -595,20 +595,22 @@ export default class BigQueryQuery {
 
     query += this.buildWhereClause();
     query += this.buildGroupClause();
-    // let orderBy = "";
-    // if (!this.isWindow) {
-    //   orderBy = "\nORDER BY 1";
-    //   if (this.hasMetricColumn()) {
-    //     orderBy =
-    //       this.target.orderByCol === "1" ? "\nORDER BY 1,2" : "\nORDER BY 2,1";
-    //   }
-    //   if (this.target.orderBySort === "2") {
-    //     orderBy += " DESC";
-    //   }
-    //   if (this.hll === undefined) {
-    //     query = query + " " + orderBy;
-    //   }
-    // }
+    if (!union) {
+      let orderBy = "";
+      if (!this.isWindow) {
+        orderBy = "\nORDER BY 1";
+        if (this.hasMetricColumn()) {
+          orderBy =
+            this.target.orderByCol === "1" ? "\nORDER BY 1,2" : "\nORDER BY 2,1";
+        }
+        if (this.target.orderBySort === "2") {
+          orderBy += " DESC";
+        }
+        if (this.hll === undefined) {
+          query = query + " " + orderBy;
+        }
+      }
+    }
     if (this.isWindow) {
       query = "\nSELECT *  EXCEPT (" + this.tmpValue + ") From \n (" + query;
       query = query + " " + this.groupBy;
