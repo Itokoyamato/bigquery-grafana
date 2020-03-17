@@ -1,6 +1,12 @@
 {
     "clients": [
-        "neocity-app-lappliversailles.analytics_211494509",
-        "neocity-app-local.analytics_204977573"
+        {
+            "project": "neocity-app-lappliversailles",
+            "dataset": "analytics_211494509"
+        },
+        {
+            "project": "neocity-app-local",
+            "dataset": "analytics_204977573"
+        }
     ]
 }
