@@ -175,15 +175,14 @@ export default class BigQueryQuery {
     let rawSql = "SELECT time, metric, SUM(total) as total FROM (";
     this.target.table = "events_YYYYMM";
     // loop through clients and call this.buildQuery() en enlevant le groupby
-    clients.forEach(client => {
+    clients.forEach((client, index) => {
       console.log(client);
       this.target.project = client.project;
       this.target.dataset = client.dataset;
       rawSql += this.buildQuery();
+      if (index < clients.length - 1) rawSql += ' UNION ALL ';
     });
-    //Call pour Ajouter groupBy
-
-    rawSql += ") GROUP BY time, metric";
+    rawSql += "ORDER BY 1, 2) GROUP BY time, metric";
     return rawSql;
   }
 
@@ -596,20 +595,20 @@ export default class BigQueryQuery {
 
     query += this.buildWhereClause();
     query += this.buildGroupClause();
-    let orderBy = "";
-    if (!this.isWindow) {
-      orderBy = "\nORDER BY 1";
-      if (this.hasMetricColumn()) {
-        orderBy =
-          this.target.orderByCol === "1" ? "\nORDER BY 1,2" : "\nORDER BY 2,1";
-      }
-      if (this.target.orderBySort === "2") {
-        orderBy += " DESC";
-      }
-      if (this.hll === undefined) {
-        query = query + " " + orderBy;
-      }
-    }
+    // let orderBy = "";
+    // if (!this.isWindow) {
+    //   orderBy = "\nORDER BY 1";
+    //   if (this.hasMetricColumn()) {
+    //     orderBy =
+    //       this.target.orderByCol === "1" ? "\nORDER BY 1,2" : "\nORDER BY 2,1";
+    //   }
+    //   if (this.target.orderBySort === "2") {
+    //     orderBy += " DESC";
+    //   }
+    //   if (this.hll === undefined) {
+    //     query = query + " " + orderBy;
+    //   }
+    // }
     if (this.isWindow) {
       query = "\nSELECT *  EXCEPT (" + this.tmpValue + ") From \n (" + query;
       query = query + " " + this.groupBy;
@@ -625,7 +624,7 @@ export default class BigQueryQuery {
         outerGroupBy +
         orderBy;
     }
-    query = "#standardSQL" + query;
+    // query = "#standardSQL" + query;
     return query;
   }
 
