@@ -595,8 +595,8 @@ export default class BigQueryQuery {
 
     query += this.buildWhereClause();
     query += this.buildGroupClause();
+    let orderBy = "";
     if (!union) {
-      let orderBy = "";
       if (!this.isWindow) {
         orderBy = "\nORDER BY 1";
         if (this.hasMetricColumn()) {
