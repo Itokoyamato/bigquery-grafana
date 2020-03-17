@@ -173,16 +173,16 @@ export default class BigQueryQuery {
 
   public unionQuery() {
     let rawSql = "SELECT time, metric, SUM(total) as total FROM (";
-    this.target.table = "events_YYYYMM";
-    // loop through clients and call this.buildQuery() en enlevant le groupby
+    this.target.table = "events_*";
     clients.forEach((client, index) => {
-      console.log(client);
       this.target.project = client.project;
       this.target.dataset = client.dataset;
       rawSql += this.buildQuery(true);
       if (index < clients.length - 1) rawSql += ' UNION ALL ';
     });
-    rawSql += "ORDER BY 1, 2) GROUP BY time, metric";
+    rawSql += " ORDER BY 1, 2) GROUP BY time, metric";
+    rawSql.replace("$__timeGroupAlias(TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)),15m)", "TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)");
+    rawSql.replace("GROUP BY 1,2,2", "GROUP BY _table_suffix, 1, 2");
     return rawSql;
   }
 
