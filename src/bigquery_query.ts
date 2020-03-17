@@ -181,8 +181,8 @@ export default class BigQueryQuery {
       if (index < clients.length - 1) rawSql += ' UNION ALL ';
     });
     rawSql += " ORDER BY 1, 2) GROUP BY time, metric";
-    rawSql.replace("$__timeGroupAlias(TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)),15m)", "TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)");
-    rawSql.replace("GROUP BY 1,2,2", "GROUP BY _table_suffix, 1, 2");
+    rawSql = rawSql.replace(/$__timeGroupAlias(TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)),15m)/g, "TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX)");
+    rawSql = rawSql.replace(/GROUP BY 1,2,2/g, "GROUP BY _table_suffix, 1, 2");
     return rawSql;
   }
 
