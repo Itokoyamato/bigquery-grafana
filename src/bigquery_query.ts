@@ -1,5 +1,6 @@
 import _ from "lodash";
 import {BigQueryDatasource} from "./datasource";
+const { clients } = require("./clients.json");
 
 export default class BigQueryQuery {
   public static quoteLiteral(value) {
@@ -170,6 +171,19 @@ export default class BigQueryQuery {
     return this.target.metricColumn !== "none";
   }
 
+  public unionQuery() {
+    let rawSql = "SELECT time, metric, SUM(total) as total FROM (";
+    // loop through clients and call this.buildQuery() en enlevant le groupby
+    clients.forEach(client => {
+      rawSql += `\`${client}.events_*\``;
+      rawSql += this.buildQuery();
+    });
+    //Call pour Ajouter groupBy
+
+    rawSql += ") GROUP BY time, metric";
+    return rawSql;
+  }
+
   public interpolateQueryStr(value, variable, defaultFormatFn) {
     // if no multi or include all do not regexEscape
     if (!variable.multi && !variable.includeAll) {
@@ -190,7 +204,9 @@ export default class BigQueryQuery {
     if (!this.target.rawQuery && !("table" in this.target)) {
       return "";
     }
-    if (!target.rawQuery) {
+    if (!target.rawQuery && target.project === "union") {
+      target.rawSql = this.unionQuery();
+    } else if (!target.rawQuery) {
       target.rawSql = this.buildQuery();
     }
     if (interpolate) {
