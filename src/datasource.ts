@@ -262,10 +262,10 @@ export class BigQueryDatasource {
       if (limit == null) {
         q += " LIMIT " + options.maxDataPoints;
       }
-      console.log(q);
+      console.log('before replace', q);
       this.queryModel.target.rawSql = tmpQ;
       q = q.replace(/\$__timeFilter\(([\w_.]+)\)/g, "TIMESTAMP(PARSE_DATE('%Y%m%d', _TABLE_SUFFIX))");
-      console.log(q);
+      console.log('after replace', q);
       return this.doQuery(q, options.panelId + query.refId).then(response => {
         return ResponseParser.parseDataQuery(response, query.format);
       });
