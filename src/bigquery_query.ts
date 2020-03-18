@@ -171,8 +171,10 @@ export default class BigQueryQuery {
     return this.target.metricColumn !== "none";
   }
 
-  public unionQuery() {
-    let rawSql = "SELECT time, metric, SUM(total) as total FROM (";
+  public unionQuery(project) {
+    let rawSql;
+    if (project === 'unionSum') rawSql = "SELECT time, metric, SUM(total) as total FROM (";
+    else rawSql = "SELECT time, metric, AVG(total) as total FROM (";
     this.target.table = "events_*";
     this.target.sharded = true;
     clients.forEach((client, index) => {
@@ -206,8 +208,8 @@ export default class BigQueryQuery {
     if (!this.target.rawQuery && !("table" in this.target)) {
       return "";
     }
-    if (!target.rawQuery && target.project === "union") {
-      target.rawSql = this.unionQuery();
+    if (!target.rawQuery && (target.project === "unionSum" || target.project === 'unionAvg')) {
+      target.rawSql = this.unionQuery(target.project);
     } else if (!target.rawQuery) {
       target.rawSql = this.buildQuery();
     }
